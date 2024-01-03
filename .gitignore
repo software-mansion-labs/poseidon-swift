@@ -1,0 +1,22 @@
+# vscode
+.vscode
+
+# idea
+.idea
+
+# Xcode
+
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
+
+## User settings
+xcuserdata/
+
+# Build output
+Binaries
+Frameworks
+Headers
+*.xcframework
+.DS_Store
