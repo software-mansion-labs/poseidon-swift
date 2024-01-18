@@ -30,14 +30,15 @@ sdk_names=(
 mkdir -p Binaries
 mkdir -p Headers
 
-pushd poseidon
+pushd "$(dirname "$0")" || exit 1
+pushd poseidon || exit 1
 
 targets_size=${#targets[@]}
 
-for (( i=0; i < $targets_size; i++ )); do
-  mkdir -p Build/${targets[i]}
+for (( i=0; i < targets_size; i++ )); do
+  mkdir -p "Build/${targets[i]}"
 
-  pushd Build/${targets[i]}
+  pushd "Build/${targets[i]}" || exit 1
 
   sdk_sysroot="$(xcrun --sdk "${sdk_names[i]}" --show-sdk-path)"
 
@@ -63,7 +64,7 @@ for (( i=0; i < $targets_size; i++ )); do
     -DCMAKE_OSX_DEPLOYMENT_TARGET="$min_version" \
     ../..
 
-  popd
+  popd || exit 1
 
   make -C "Build/${targets[i]}"
 
@@ -71,7 +72,7 @@ for (( i=0; i < $targets_size; i++ )); do
   cp "Build/${targets[i]}/libposeidon.dylib" "../Binaries/${targets[i]}/libposeidon.dylib"
 done
 
-popd
+popd || exit 1
 
 rm Headers/*.h || true
 cp poseidon/sources//{poseidon.h,poseidon_rc.h,f251.h} Headers
@@ -120,4 +121,16 @@ done
 
 build_command+=" -output poseidon.xcframework"
 
-eval $build_command
+rm -r poseidon.xcframework || true
+
+eval "$build_command"
+
+pushd poseidon || exit 1
+git clean -dfx || true
+popd || exit 1
+
+rm -r Binaries || true
+rm -r Frameworks || true
+rm -r Headers || true
+
+popd || exit 0 
